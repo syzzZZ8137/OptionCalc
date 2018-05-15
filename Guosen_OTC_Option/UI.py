@@ -1,0 +1,381 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue May 15 08:47:23 2018
+
+@author: Jax_GuoSen
+"""
+
+from datetime import datetime
+from datetime import timedelta
+import pandas as pd
+import numpy as np
+import time
+from ipywidgets import *
+from IPython.display import display,clear_output,display_html
+import Guosen_OTC_Option.MC_Asian_Pricer as MC
+import Guosen_OTC_Option.Option_Portfolio as OP
+
+
+#期权组合界面
+def on_btnOptPort_clicked(p):
+    clear_output()
+    
+    now = datetime.now()
+    f = now + timedelta(days=90)  #90天后日期
+
+    price_date = widgets.DatePicker(
+        description='期权报价日:',
+        disabled=False,
+        value=now.date(),
+        tooltip=u'计算期权价格的日期，默认今天'
+    )
+
+    maturity_date = widgets.DatePicker(
+        description='期权到期日:',
+        disabled=False,
+        value=f.date()
+    )
+
+
+    option_type = widgets.Dropdown(
+        options=['欧式/看涨',
+                 '欧式/看跌',
+                 '美式/看涨',
+                 '美式/看跌',
+                 '标的资产',
+                 '无'],
+        value='欧式/看涨',
+        description=u'期权种类:',
+        disabled=False,
+        continuous_update=True,
+        
+
+    )
+    S = widgets.FloatText(
+        value=15000,
+        description='标的价格:',
+        disabled=False,
+        step=1,  #快捷变换间隔
+        tooltip=u'待选期权种类'
+
+    )
+    K = widgets.FloatText(
+        value=15000,
+        description='行权价:',
+        disabled=False,
+        step=1
+    )
+    sigma = widgets.FloatText(
+        value=0.3,
+        description='波动率:',
+        disabled=False,
+        step=0.01,
+        min = 0
+    )
+    r = widgets.FloatText(
+        value=0.01,
+        description='无风险利率:',
+        disabled=False,
+        step=0.01
+    )
+    q = widgets.FloatText(
+        value=0.0,
+        description='股息率:',
+        disabled=False,
+        step=0.01
+    )
+    position = widgets.FloatText(
+        value=1,
+        description='头寸:',
+        disabled=False,
+        step=1
+    )
+
+    tips = widgets.Label(value="选定好期权参数后，单击 加入组合数据库 ，随后选定下一个期权的参数，以此步骤循环。")
+    tips2 = widgets.Label(value="若遗忘已加入的期权信息，可单击 查询已加期权信息。")
+    tips3 = widgets.Label(value="全部配置完成后，单击计算期权组合价格。")
+    container_option_info = widgets.VBox([price_date,
+                                          maturity_date,
+                                          option_type,S,K,sigma,r,q,position,tips,tips2,tips3])
+    
+    
+    #计算按钮
+    btn_preorder = widgets.Button(
+        description=u'计算期权组合价格',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击计算已选定组合的期权价格',
+        icon='check'
+    )
+
+    def on_btnPreorder_clicked(p):
+        #clear_output()
+        port_sum = OP.option_portfolio_main(option_portfolio,strategy_name = 'Option_Portfolio')
+    
+    
+    #增加期权品种按钮
+    #将新增加的期权信息，添加至option_portfolio变量中
+    btn_entry_db = widgets.Button(
+        description=u'加入组合数据库',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击将已配置好的期权参数加入组合',
+        icon='check'
+    )
+    def entry_db(p):
+        global container_option_info   #加全局变量
+        market_property = {'underlying price':S.value,'interest':r.value,\
+                           'volatility':sigma.value,'dividend':q.value}
+        option_property = {'type':option_type.value,'position':position.value,\
+                           'strike':K.value,'maturity':(maturity_date.value - price_date.value).days/365}
+        print('已进入期权组合！')
+        option_portfolio.append([market_property,option_property])
+    
+    #查询已添加的期权数据
+    btn_query_db = widgets.Button(
+        description=u'查询已加期权信息',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击查询已加入组合的期权信息',
+        icon='check'
+    )
+    
+    def query_db(p):
+        if len(option_portfolio)==0:
+            print('无添加任何期权信息')
+        else:
+            i=1
+            option_info = []
+            for each in option_portfolio:
+                option_info.append([i,each[1]['type'],each[0]['underlying price'],\
+                                   each[1]['strike'],each[1]['position'],\
+                                   each[1]['maturity'],\
+                                   each[0]['interest'],each[0]['volatility'],\
+                                   each[0]['dividend']])
+                i+=1
+                
+            option_info = pd.DataFrame(option_info,columns=['期权序号','期权类型','标的价格',\
+                                                            '期权行权价','期权头寸','期权到期时间（年）',\
+                                                            '无风险利率','波动率','股息率'])  #组合成pandas
+            print(option_info.T)
+    
+    #重置，返回上一步界面
+    btn_init = widgets.Button(
+        description=u'重置',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击返回上一单元',
+        icon='check'
+    )
+    
+    def init(p):
+        display_()
+    
+    global option_portfolio
+    option_portfolio = []
+    btn_preorder.on_click(on_btnPreorder_clicked)
+    btn_entry_db.on_click(entry_db)
+    btn_query_db.on_click(query_db)
+    btn_init.on_click(init)
+    
+    display(container_option_info)
+    
+    select = HBox([btn_entry_db,btn_query_db])
+    select2 = HBox([btn_preorder,btn_init])
+    select_all = VBox([select,select2])
+    display(select_all)
+
+
+#亚式期权界面
+def on_btnAsian_clicked(p):
+    clear_output()
+
+    now = datetime.now()
+    f = now + timedelta(days=90)  #90天后日期
+
+    price_date = widgets.DatePicker(
+        description='期权报价日',
+        disabled=False,
+        value=now.date()
+    )
+
+    start_fixed_date = widgets.DatePicker(
+        description='期权起均日',
+        disabled=False,
+        value=now.date()
+    )
+    end_fixed_date = widgets.DatePicker(
+        description='期权终均日',
+        disabled=False,
+        value=f.date()
+    )
+    maturity_date = widgets.DatePicker(
+        description='期权到期日',
+        disabled=False,
+        value=f.date()
+    )
+
+    tips1 = widgets.Label(value="期权起均日 至 期权终均日，意为亚式期权平均值累计区间。")
+    
+    option_type = widgets.Dropdown(
+        options=['亚式/算术平均/看涨/固定',
+                 '亚式/算术平均/看跌/固定',
+                 '亚式/算术平均/看涨/浮动',
+                 '亚式/算术平均/看跌/浮动'],
+        value='亚式/算术平均/看跌/固定',
+        description=u'期权种类',
+        disabled=False,
+        continuous_update=True,
+
+    )
+    
+    tips2 = widgets.Label(value="固定型 意为期权到期损益基于行权价与平均价，浮动型 意为期权到期损益基于标的期末价格与平均价。国内目前“保险+期货”项目为固定型。")
+
+    S = widgets.FloatText(
+        value=15000,
+        description='标的价格:',
+        disabled=False,
+        step=1,  #快捷变换间隔
+
+    )
+    SA = widgets.FloatText(
+        value=0,
+        description='当前均价:',
+        disabled=False,
+        step=1,
+
+    )
+    tips3 = widgets.Label(value='当前均价 用于期权起均日在期权报价日之前，则此时该期权已累计部分均价点。若起均日在报价日当天或之后，则该项可忽略。')
+
+    K = widgets.FloatText(
+        value=15000,
+        description='行权价:',
+        disabled=False,
+        step=1
+    )
+    sigma = widgets.FloatText(
+        value=0.3,
+        description='波动率:',
+        disabled=False,
+        step=0.01,
+        min = 0
+    )
+    r = widgets.FloatText(
+        value=0.01,
+        description='无风险利率:',
+        disabled=False,
+        step=0.01
+    )
+    q = widgets.FloatText(
+        value=0.0,
+        description='股息率:',
+        disabled=False,
+        step=0.01
+    )
+
+    Nsamples = widgets.BoundedIntText(
+        value=50000,
+        description='MC样本量:',
+        disabled=False,
+        step=10000,
+        max = 200000,
+        min = 10000
+    )
+    Tsamples = widgets.BoundedIntText(
+        value=1000,
+        description='MC步数:',
+        disabled=False,
+        step=100,
+        max = 20000,
+        min = 100
+    )
+
+    date_info = widgets.HBox([price_date,maturity_date])
+    date_info2 = widgets.HBox([start_fixed_date,end_fixed_date])
+    info1 = widgets.HBox([S,SA])
+    info2 = widgets.HBox([K,sigma])
+    info3 = widgets.HBox([r,q])
+    info4 = widgets.HBox([Nsamples,Tsamples])
+    container_option_info = widgets.VBox([date_info,date_info2,tips1,
+                                          option_type,tips2,info1,tips3,info2,\
+                                         info3,info4])
+
+    #计算按钮
+    btn_preorder = widgets.Button(
+        description=u'计算期权价格',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击计算价格，由于为蒙特卡洛算法，可能消耗一定时间，请耐心等待！',
+        icon='check'
+    )
+
+    def on_btnPreorder_clicked(p):
+        #clear_output()
+        global container_option_info   #加全局变量
+        print('正在运行，请耐心等待......')
+        time_start = time.time()
+        #以下三行为执行亚式期权计算指令
+        Ta,Tb,Tc,sit = MC.time_split(price_date.value,start_fixed_date.value,end_fixed_date.value,maturity_date.value)
+        random = MC.random_gen(Nsamples.value,Tsamples.value)
+        V,se = MC.Asian_Disc_MC(random,S.value,K.value,Ta,Tb,Tc,sit,r.value,sigma.value,q.value,SA.value,
+                             option_type.value,Nsamples.value,Tsamples.value)
+        time_end = time.time()
+
+        print('期权价格为: %.3f元\n期权价格计算误差为: %.3f元\n用时：%.3f秒'%(V,se,time_end-time_start))
+
+    #重置按钮，返回上一步界面
+    btn_init = widgets.Button(
+        description=u'重置',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击返回上一单元',
+        icon='check'
+    )
+    
+    def init(p):
+        display_()
+
+    btn_preorder.on_click(on_btnPreorder_clicked)
+    btn_init.on_click(init)
+    
+    display(container_option_info)
+    select = HBox([btn_preorder,btn_init])
+    display(select)
+
+    
+#初始界面按钮
+def display_():
+    btn_OptPort = widgets.Button(
+        description=u'期权组合计算',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击进入期权组合计算页面',
+        icon='check'
+    )
+        
+        
+    btn_asian = widgets.Button(
+        description=u'亚式期权计算',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击进入亚式期权计算页面',
+        icon='check'
+    )
+    
+    btn_OptPort.on_click(on_btnOptPort_clicked)
+    btn_asian.on_click(on_btnAsian_clicked)
+    
+    clear_output()
+    
+    select = HBox([btn_OptPort,btn_asian])
+    display(select)
+
+    
+
+
+
+
+if __name__ == '__main__':
+    #执行语句
+    display_()
+
