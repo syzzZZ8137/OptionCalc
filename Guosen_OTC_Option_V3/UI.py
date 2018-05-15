@@ -121,7 +121,7 @@ def on_btnOptPort_clicked(p):
         if len(option_portfolio)==0:
             print('无添加任何期权信息')
         else:
-            port_sum = OP.option_portfolio_main(option_portfolio,strategy_name = 'PnL')
+            port_sum = OP.option_portfolio_main(option_portfolio,strategy_name = '期权组合收益结构')
     
     
     #增加期权品种按钮
@@ -166,14 +166,14 @@ def on_btnOptPort_clicked(p):
                 option_info.append([i,each[1]['type'],each[0]['underlying price'],\
                                    each[1]['strike'],each[1]['position'],\
                                    each[1]['maturity'],\
-                                   each[0]['interest'],each[0]['volatility']])
+                                   each[0]['interest'],each[0]['volatility'],\
+                                   each[0]['dividend']])
                 i+=1
                 
             option_info = pd.DataFrame(option_info,columns=['期权序号','期权类型','标的价格',\
                                                             '期权行权价','期权头寸','期权到期时间（年）',\
                                                             '无风险利率','波动率'])  #组合成pandas
-        option_info.set_index('期权序号',inplace=True,drop=True)    
-        display(option_info)
+            print(option_info.T)
     
     #重置，返回上一步界面
     btn_init = widgets.Button(

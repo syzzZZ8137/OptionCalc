@@ -171,7 +171,7 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
     if len(option_portfolio)>1:
         #画合成后的
         ax.plot(port_sum['priceT'],port_sum['sum'],'-',linewidth=2,markersize=10)
-        legend.append('Combo')
+        legend.append('组合')
 
     ax.grid(color='black',linestyle='--',linewidth=0.5)
     ax.set_title(strategy_name+'\n',fontsize=14)
