@@ -172,8 +172,8 @@ def on_btnOptPort_clicked(p):
             option_info = pd.DataFrame(option_info,columns=['期权序号','期权类型','标的价格',\
                                                             '期权行权价','期权头寸','期权到期时间（年）',\
                                                             '无风险利率','波动率'])  #组合成pandas
-        option_info.set_index('期权序号',inplace=True,drop=True)    
-        display(option_info)
+            option_info.set_index('期权序号',inplace=True,drop=True)    
+            display(option_info)
     
     #重置，返回上一步界面
     btn_init = widgets.Button(
