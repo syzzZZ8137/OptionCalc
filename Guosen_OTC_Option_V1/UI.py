@@ -12,8 +12,8 @@ import numpy as np
 import time
 from ipywidgets import *
 from IPython.display import display,clear_output,display_html
-import OptionCalc.Guosen_OTC_Option.MC_Asian_Pricer as MC
-import OptionCalc.Guosen_OTC_Option.Option_Portfolio as OP
+import Guosen_OTC_Option.MC_Asian_Pricer as MC
+import Guosen_OTC_Option.Option_Portfolio as OP
 
 
 #期权组合界面
