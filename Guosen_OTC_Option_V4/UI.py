@@ -312,8 +312,7 @@ def on_btnAsian_clicked(p):
     
     container_option_info = widgets.VBox([date_info,date_info2,tips1,
                                           option_type,tips2,info1,info2])
-    global count#记录计算次数
-    count = 1
+
     #计算按钮
     btn_preorder = widgets.Button(
         description=u'计算期权价格',
@@ -326,8 +325,6 @@ def on_btnAsian_clicked(p):
     def on_btnPreorder_clicked(p):
         #clear_output()
         global container_option_info   #加全局变量
-        global count
-        #global count
         print('正在运行，请耐心等待......')
         time_start = time.time()
         #以下三行为执行亚式期权计算指令
@@ -335,7 +332,6 @@ def on_btnAsian_clicked(p):
         q = 0
         Nsamples = 50000
         Tsamples = (maturity_date.value-price_date.value).days*10
-        
         if option_type.value == '亚式/看涨':
             OT = '亚式/算术平均/看涨/固定'
         else:
@@ -356,8 +352,7 @@ def on_btnAsian_clicked(p):
                 V,se = MC.Asian_Disc_MC(random,S.value,K.value,Ta,Tb,Tc,sit,r.value,sigma.value,q,SA,
                                      OT,Nsamples,Tsamples)
                 time_end = time.time()
-                print('第%d次计算结果：\t期权价格为: %.3f元\t用时：%.3f秒'%(count,V,time_end-time_start))
-                count+=1
+                print('期权价格为: %.3f元\n期权价格计算误差为: %.3f元\n用时：%.3f秒'%(V,se,time_end-time_start))
             else:
                 print('输入有误！请确认起均日在报价日之后！')
                 

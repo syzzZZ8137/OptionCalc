@@ -10,7 +10,6 @@ import numpy as np
 from scipy.stats import norm
 from scipy.optimize import fsolve  
 from matplotlib import pyplot as plt
-from IPython.display import display
 
 def European_Call(S,K,T,sigma,r,q):
     
@@ -179,15 +178,9 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
     ax.legend(legend)
     
     i=1
-    out_put = []
     for each in V_price:
-        temp = '期权%d'%i
-        out_put.append([temp,each])
+        print('期权%d价格为：'%i,each)
         i+=1
-    out_put.append(['期权组合',sum(V_price)])
-    out_put = pd.DataFrame(out_put,columns=['期权序号','价格'])
-    out_put.set_index('期权序号',inplace=True,drop=True)
-    display(out_put)
-    
+    print('期权组合价格为：',sum(V_price))
     print('到期期权损益图如下：')
     return port_sum
