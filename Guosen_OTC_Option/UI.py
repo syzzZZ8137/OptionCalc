@@ -231,7 +231,7 @@ def on_btnOptPort_clicked(p):
             market_property = {'underlying price':S.value,'interest':r.value,\
                                'volatility':private_info.children[2].value,'dividend':0}
             option_property = {'type':private_info.children[0].value,'position':pos,\
-                               'strike':private_info.children[1].value,'maturity':(maturity_date.value - price_date.value).days/365}
+                               'strike':private_info.children[1].value,'maturity':((maturity_date.value - price_date.value).days+1)/365}
             option_portfolio.append([market_property,option_property])
     
     
