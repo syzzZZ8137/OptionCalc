@@ -12,10 +12,10 @@ import numpy as np
 import time
 from ipywidgets import *
 from IPython.display import display,clear_output,display_html
-import OptionCalc.Guosen_OTC_Option.MC_Asian_Pricer as MC
-import OptionCalc.Guosen_OTC_Option.Option_Portfolio as OP
+import OptionCalc.Guosen_OTC_Option_infinite.MC_Asian_Pricer as MC
+import OptionCalc.Guosen_OTC_Option_infinite.Option_Portfolio as OP
 
-#%%
+
 #期权组合界面
 def on_btnOptPort_clicked(p):
     clear_output()
@@ -36,6 +36,20 @@ def on_btnOptPort_clicked(p):
         value=f.date()
     )
 
+
+    option_type = widgets.Dropdown(
+        options=['欧式/看涨',
+                 '欧式/看跌',
+                 '美式/看涨',
+                 '美式/看跌',
+                 '标的资产'],
+        value='欧式/看涨',
+        description=u'期权种类:',
+        disabled=False,
+        continuous_update=True,
+        
+
+    )
     S = widgets.FloatText(
         value=15000,
         description='标的价格:',
@@ -44,55 +58,40 @@ def on_btnOptPort_clicked(p):
         tooltip=u'待选期权种类'
 
     )
-    
+    K = widgets.FloatText(
+        value=15000,
+        description='行权价:',
+        disabled=False,
+        step=1
+    )
+    sigma = widgets.FloatText(
+        value=0.3,
+        description='波动率:',
+        disabled=False,
+        step=0.01,
+        min = 0
+    )
     r = widgets.FloatText(
         value=0.01,
         description='无风险利率:',
         disabled=False,
         step=0.01
     )
-    
-    
-
-    option_type1 = widgets.Dropdown(
-        options=['欧式/看涨',
-                 '欧式/看跌',
-                 '美式/看涨',
-                 '美式/看跌',
-                 '标的资产',
-                 '无'],
-        value='欧式/看涨',
-        description=u'期权1:',
-        disabled=False,
-        continuous_update=True,
-    )
-
-    K1 = widgets.BoundedFloatText(
-        value=15000,
-        description='行权价:',
-        disabled=False,
-        step=1,
-        min=0.01,
-        max=1000000000
-    )
-    
-    sigma1 = widgets.BoundedFloatText(
-        value=0.3,
-        description='波动率:',
-        disabled=False,
-        step=0.01,
-        min = 0
-    )
-    
-    direction1 = widgets.Dropdown(
+#    q = widgets.FloatText(
+#        value=0.0,
+#        description='股息率:',
+#        disabled=False,
+#        step=0.01
+#    )
+    direction = widgets.ToggleButtons(
         options=['买入', '卖出'],
         description='方向:',
         disabled=False,
-        value = '买入',
-        continuous_update=True
+        button_style='info', # 'success', 'info', 'warning', 'danger' or ''
+        value = '买入'
+    #     icons=['check'] * 3
     )
-    
-    position1 = widgets.BoundedIntText(
+    position = widgets.BoundedIntText(
         value=1,
         min=0,
         description='头寸:',
@@ -100,140 +99,12 @@ def on_btnOptPort_clicked(p):
         step=1
     )
 
-    option_type2 = widgets.Dropdown(
-        options=['欧式/看涨',
-                 '欧式/看跌',
-                 '美式/看涨',
-                 '美式/看跌',
-                 '标的资产',
-                 '无'],
-        value='无',
-        description=u'期权2:',
-        disabled=False,
-        continuous_update=True,
-    )
-
-    K2 = widgets.BoundedFloatText(
-        value=15000,
-        description='行权价:',
-        disabled=False,
-        step=1,
-        min=0.01,
-        max=1000000000
-    )
-    
-    sigma2 = widgets.BoundedFloatText(
-        value=0.3,
-        description='波动率:',
-        disabled=False,
-        step=0.01,
-        min = 0
-    )
-    
-    direction2 = widgets.Dropdown(
-        options=['买入', '卖出'],
-        description='方向:',
-        disabled=False,
-        value = '买入',
-        continuous_update=True
-    )
-    
-    position2 = widgets.BoundedIntText(
-        value=1,
-        min=0,
-        description='头寸:',
-        disabled=False,
-        step=1
-    )
-
-
-    option_type3 = widgets.Dropdown(
-        options=['欧式/看涨',
-                 '欧式/看跌',
-                 '美式/看涨',
-                 '美式/看跌',
-                 '标的资产',
-                 '无'],
-        value='无',
-        description=u'期权3:',
-        disabled=False,
-        continuous_update=True,
-    )
-
-    K3 = widgets.BoundedFloatText(
-        value=15000,
-        description='行权价:',
-        disabled=False,
-        step=1,
-        min=0.01,
-        max=1000000000
-    )
-    
-    sigma3 = widgets.BoundedFloatText(
-        value=0.3,
-        description='波动率:',
-        disabled=False,
-        step=0.01,
-        min = 0
-    )
-    
-    direction3 = widgets.Dropdown(
-        options=['买入', '卖出'],
-        description='方向:',
-        disabled=False,
-        value = '买入',
-        continuous_update=True
-    )
-    
-    position3 = widgets.BoundedIntText(
-        value=1,
-        min=0,
-        description='头寸:',
-        disabled=False,
-        step=1
-    )
-    
-    tips = widgets.Label(value="全部配置完成后，单击 【计算期权组合价格】。若想清空组合或返回，请单击【重置】。")
-    tips1 = widgets.Label(value=" ") #产生一个空行
-    tips2 =  widgets.HTML(value="<head><b>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          版本号：1.0.0</b></head></div>")
-    tips3 = widgets.Label(value=" ") #产生一个空行
-    #排版
-    public_info_sub1 = widgets.HBox([price_date,maturity_date,tips2])
-    public_info_sub2 = widgets.HBox([S,r,tips3])
-    public_info = widgets.VBox([public_info_sub1,public_info_sub2,tips1])
-    
-    private_info1 = widgets.VBox([option_type1,K1,sigma1,direction1,position1])
-    private_info2 = widgets.VBox([option_type2,K2,sigma2,direction2,position2])
-    private_info3 = widgets.VBox([option_type3,K3,sigma3,direction3,position3])
-    
-    private_info = widgets.HBox([private_info1,private_info2,private_info3])
-    global option_portfolio,container_option_info
-    
-    
-    container_option_info = widgets.VBox([public_info,private_info,tips])
-    
-    option_portfolio = []
-    
-    #判断期权类型是否为“无”，若是，则加入。
-    def entry_combos(private_info):
-        if private_info.children[0].value=='无':
-            pass
-        else:
-            if private_info.children[3].value == '卖出':
-                pos = -private_info.children[4].value
-            else:
-                pos = private_info.children[4].value
-            #加入组合库
-            market_property = {'underlying price':S.value,'interest':r.value,\
-                               'volatility':private_info.children[2].value,'dividend':0}
-            option_property = {'type':private_info.children[0].value,'position':pos,\
-                               'strike':private_info.children[1].value,'maturity':((maturity_date.value - price_date.value).days+1)/365}
-            option_portfolio.append([market_property,option_property])
-    
+    tips = widgets.Label(value="选定好期权参数后，单击 【加入组合数据库】 ，随后可继续选定下一个期权的参数，以此步骤循环。")
+    tips2 = widgets.Label(value="若遗忘已加入的期权信息，可单击 【查询已加期权信息】。")
+    tips3 = widgets.Label(value="全部配置完成后，单击 【计算期权组合价格】。若想清空组合或返回，请单击【重置】。")
+    container_option_info = widgets.VBox([price_date,
+                                          maturity_date,
+                                          option_type,S,K,sigma,r,direction,position,tips,tips2,tips3])
     
     
     #计算按钮
@@ -247,17 +118,63 @@ def on_btnOptPort_clicked(p):
 
     def on_btnPreorder_clicked(p):
         #clear_output()
-        global option_portfolio,container_option_info
-        entry_combos(private_info1)
-        entry_combos(private_info2)
-        entry_combos(private_info3)
-        
         if len(option_portfolio)==0:
             print('无添加任何期权信息')
         else:
             port_sum = OP.option_portfolio_main(option_portfolio,strategy_name = 'PnL')
-        option_portfolio = []  #清空本次记录
-        
+    
+    
+    #增加期权品种按钮
+    #将新增加的期权信息，添加至option_portfolio变量中
+    btn_entry_db = widgets.Button(
+        description=u'加入组合数据库',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击将已配置好的期权参数加入组合',
+        icon='check'
+    )
+    def entry_db(p):
+        global container_option_info   #加全局变量
+        if direction.value == '卖出':
+            pos = -position.value
+        else:
+            pos = position.value
+
+        market_property = {'underlying price':S.value,'interest':r.value,\
+                           'volatility':sigma.value,'dividend':0}
+        option_property = {'type':option_type.value,'position':pos,\
+                           'strike':K.value,'maturity':(maturity_date.value - price_date.value).days/365}
+        print('已进入期权组合！')
+        option_portfolio.append([market_property,option_property])
+    
+    #查询已添加的期权数据
+    btn_query_db = widgets.Button(
+        description=u'查询已加期权信息',
+        disabled=False,
+        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
+        tooltip=u'单击查询已加入组合的期权信息',
+        icon='check'
+    )
+    
+    def query_db(p):
+        if len(option_portfolio)==0:
+            print('无添加任何期权信息')
+        else:
+            i=1
+            option_info = []
+            for each in option_portfolio:
+                option_info.append([i,each[1]['type'],each[0]['underlying price'],\
+                                   each[1]['strike'],each[1]['position'],\
+                                   each[1]['maturity'],\
+                                   each[0]['interest'],each[0]['volatility']])
+                i+=1
+                
+            option_info = pd.DataFrame(option_info,columns=['期权序号','期权类型','标的价格',\
+                                                            '期权行权价','期权头寸','期权到期时间（年）',\
+                                                            '无风险利率','波动率'])  #组合成pandas
+            option_info.set_index('期权序号',inplace=True,drop=True)    
+            display(option_info)
+    
     #重置，返回上一步界面
     btn_init = widgets.Button(
         description=u'重置',
@@ -270,16 +187,21 @@ def on_btnOptPort_clicked(p):
     def init(p):
         display_()
     
-    
+    global option_portfolio
+    option_portfolio = []
     btn_preorder.on_click(on_btnPreorder_clicked)
+    btn_entry_db.on_click(entry_db)
+    btn_query_db.on_click(query_db)
     btn_init.on_click(init)
     
     display(container_option_info)
+    
+    select = HBox([btn_entry_db,btn_query_db])
+    select2 = HBox([btn_preorder,btn_init])
+    select_all = VBox([select,select2])
+    display(select_all)
 
-    select = HBox([btn_preorder,btn_init])
-    display(select)
 
-#%%
 #亚式期权界面
 def on_btnAsian_clicked(p):
     clear_output()
@@ -382,12 +304,8 @@ def on_btnAsian_clicked(p):
 #        max = 20000,
 #        min = 100
 #    )
-    tips3 =  widgets.HTML(value="<head><b>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          版本号：1.0.0</b></head></div>")
-    date_info = widgets.HBox([price_date,maturity_date,tips3])
+
+    date_info = widgets.HBox([price_date,maturity_date])
     date_info2 = widgets.HBox([start_fixed_date,end_fixed_date])
     info1 = widgets.HBox([S,K])
     info2 = widgets.HBox([r,sigma])
@@ -465,7 +383,7 @@ def on_btnAsian_clicked(p):
     select = HBox([btn_preorder,btn_init])
     display(select)
 
-#%%
+    
 #初始界面按钮
 def display_():
     btn_OptPort = widgets.Button(
@@ -489,16 +407,12 @@ def display_():
     btn_asian.on_click(on_btnAsian_clicked)
     
     clear_output()
-    tips =  widgets.HTML(value="<head><b>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          版本号：1.0.0</b></head></div>")
-    select = HBox([btn_OptPort,btn_asian,tips])
+    
+    select = HBox([btn_OptPort,btn_asian])
     display(select)
 
     
-#%%
+
 
 
 
