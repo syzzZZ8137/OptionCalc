@@ -112,13 +112,13 @@ def BS_formula(market_property,option_property):
 
     return V
 
-def payoff_search(market_property,option_property,K_limit):
+def payoff_search(market_property,option_property):
 
     OT = option_property['type']
     S = market_property['underlying price']
     K = option_property['strike']
 
-    final_price = list(np.arange(K_limit[0]*0.85,K_limit[1]*1.15,(K_limit[1]*1.15-K_limit[0]*0.85)/500))
+    final_price = list(np.arange(S*0,S*3,S*0.005))
     S_T = pd.DataFrame(final_price,columns=['priceT'])
     if (OT == '欧式/看涨') or (OT == '美式/看涨'):
         S_T['payoff'] = S_T['priceT']-K
@@ -139,18 +139,10 @@ def cal_opt_port(option_portfolio):
 
     portfolio_payoff = []
     V_price = []
-    
-    K_lst = []
-    for i in range(len(option_portfolio)):
-        K_lst.append(option_portfolio[i][1]['strike'])
-        
-    #print(K_lst)
-    K_limit = [min(K_lst),max(K_lst)]
-    
     for each in option_portfolio:
         V = each[1]['position']*BS_formula(each[0],each[1])
         V_price.append(V)
-        payoff = payoff_search(each[0],each[1],K_limit)
+        payoff = payoff_search(each[0],each[1])
         payoff['payoff'] = payoff['payoff']*each[1]['position'] - V
         portfolio_payoff.append(payoff)
 
@@ -186,40 +178,16 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
     ax.set_title(strategy_name+'\n',fontsize=14)
     ax.legend(legend)
     
-    in_put1 = [int(round(option_portfolio[0][1]['maturity']*365)),\
-               option_portfolio[0][0]['underlying price'],\
-               '%.2f%%'%(option_portfolio[0][0]['interest']*100)]
-    in_put2 = []
-    for i in range(len(option_portfolio)):
-        
-        if option_portfolio[i][1]['position']<0:
-            in_put2.append(['期权%d'%(i+1),round(V_price[i],4),option_portfolio[i][1]['strike'],\
-                        '%.2f%%'%(option_portfolio[i][0]['volatility']*100),\
-                        '卖出',abs(option_portfolio[i][1]['position'])])
-        else:
-            in_put2.append(['期权%d'%(i+1),round(V_price[i],4),option_portfolio[i][1]['strike'],\
-                        '%.2f%%'%(option_portfolio[i][0]['volatility']*100),\
-                        '买入',abs(option_portfolio[i][1]['position'])])
-    
-    in_put1 = pd.DataFrame(in_put1,index=['到期天数','标的价格','无风险利率'],columns=['市场信息']).T
-    in_put2 = pd.DataFrame(in_put2,columns=['期权序号','期权价格','行权价','波动率','方向','头寸'])
-    in_put2.set_index('期权序号',inplace=True)
-    
-    display(in_put1)
-    display(in_put2)
-    print('组合价格为：%.4f'%sum(V_price))
+    i=1
+    out_put = []
+    for each in V_price:
+        temp = '期权%d'%i
+        out_put.append([temp,each])
+        i+=1
+    out_put.append(['期权组合',sum(V_price)])
+    out_put = pd.DataFrame(out_put,columns=['期权序号','价格'])
+    out_put.set_index('期权序号',inplace=True,drop=True)
+    display(out_put)
     
     print('到期期权损益图如下：')
     return port_sum
-
-if __name__ == '__main__':
-    market_property = {'underlying price':10000,'interest':0.05,\
-                   'volatility':0.1,'dividend':0}
-    option_property1 = {'type':'欧式/看涨','position':1,\
-                       'strike':10000,'maturity':1}
-    option_property2 = {'type':'欧式/看跌','position':-1,\
-                       'strike':10000,'maturity':1}
-    option_portfolio = [[market_property,option_property1],[market_property,option_property2]]
-    
-    port_sum = option_portfolio_main(option_portfolio,'Bull Strategy')
-
