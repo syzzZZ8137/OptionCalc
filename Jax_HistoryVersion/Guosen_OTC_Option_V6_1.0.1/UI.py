@@ -457,7 +457,7 @@ def on_btnAsian_clicked(p):
                 
                 display(in_put)
                 
-                print('第%d次计算结果：\t期权价格为: %.3f元\t期权费率为：%.2f%% \t 用时：%.3f秒'%(count,V,V/S.value*100,time_end-time_start))
+                print('第%d次计算结果：\t期权价格为: %.3f元\t用时：%.3f秒'%(count,V,time_end-time_start))
                 count+=1
             else:
                 print('输入有误！请确认起均日在报价日之后！')
@@ -605,14 +605,6 @@ def on_btnTprice_clicked(p):
         temp_input = [S.value,ttm,r.value/100,0,sigma_buy.value/100,sigma_sell.value/100] #temp_input = [S,T,r,q,buy_sigma,sell_sigma]
         temp_output = TP.Tprice(mid_K.value,step.value,increment.value/100,temp_input)
         temp_output.index = temp_output.index-step.value
-        temp_output_pct = temp_output.copy()
-        
-        temp_output_pct['看跌买价'] = temp_output_pct['看跌买价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        temp_output_pct['看跌卖价'] = temp_output_pct['看跌卖价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        temp_output_pct['看涨买价'] = temp_output_pct['看涨买价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        temp_output_pct['看涨卖价'] = temp_output_pct['看涨卖价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        
-        
         #out = widgets.Output(layout={'border': '2px solid black'})
         out = widgets.Output()
         with out:
@@ -622,9 +614,7 @@ def on_btnTprice_clicked(p):
             
             
             display(tips)
-            
             display(temp_output)
-            display(temp_output_pct)
         display(out)
     
     btn_preorder.on_click(on_btnPreorder_clicked)
