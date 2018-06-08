@@ -5,8 +5,8 @@ Created on Wed May 16 09:42:16 2018
 @author: Harrison
 """
 
-import OptionCalc.Guosen_OTC_Option.GetDataMySQL as GetDataMySQL
-import OptionCalc.Guosen_OTC_Option.TimeSeriesInterpolator as TimeSeriesInterpolator
+import OptionCalc.Guosen_OTC_Option_RT.GetDataMySQL as GetDataMySQL
+import OptionCalc.Guosen_OTC_Option_RT.TimeSeriesInterpolator as TimeSeriesInterpolator
 import pandas as pd 
 import numpy as np
 from scipy.stats import norm
