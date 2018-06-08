@@ -6,13 +6,15 @@ Created on Tue May 15 08:38:51 2018
 """
 
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def time_split(price_date,start_fixed_date,end_fixed_date,maturity_date):
     #输入：定价日，起均日，终均日，到期日
     #输出：三段时间及分属情况
-    Ta = (maturity_date - price_date).days/365
-    Tb = (maturity_date - start_fixed_date).days/365
-    Tc = (maturity_date - end_fixed_date).days/365
+    Ta = ((maturity_date - price_date).days+1)/365
+    Tb = ((maturity_date - start_fixed_date).days)/365
+    Tc = ((maturity_date - end_fixed_date).days)/365
     #分三种情况考虑
     #1.定价日位于起均日前
     #2.定价日位于起均日到终均日间
@@ -56,7 +58,11 @@ def Asian_Disc_MC(random,S,K,Ta,Tb,Tc,sit,r,sigma,q,SA,option_type,Nsamples=1000
         t2 = Tb-Tc  #起均日到终均日
         num_start = int(t1/Ta*Tsteps)        #起均日步数
         num_end = int(t2/Ta*Tsteps) + num_start  #终均日步数
-        Ari = S_path[:,num_start:num_end].mean(axis=1)  #均值计算
+        
+        Ari = S_path[:,num_start-1:num_end].mean(axis=1)  #均值计算
+        #Ari = S_path[:,S_path.shape[1]-1]
+        #print(num_start,num_end)
+        #print(S_path.shape[1])
 
     elif sit == 2:
         t1 = Tb-Ta
@@ -99,3 +105,52 @@ def Asian_Disc_MC(random,S,K,Ta,Tb,Tc,sit,r,sigma,q,SA,option_type,Nsamples=1000
     se = np.sqrt((np.sum(payoff**2)-Nsamples*V**2)/Nsamples/(Nsamples-1))
 
     return V,se
+
+
+if __name__ == '__main__':
+    
+    price_date = pd.datetime(2018,5,24)
+    maturity_date = pd.datetime(2018,8,22)
+    start_fixed_date = pd.datetime(2018,8,22)
+    end_fixed_date = pd.datetime(2018,8,22)
+    Nsamples = 50000
+    Tsamples = 1000
+    S = 15000
+    K = 15000
+    r = 0.01
+    sigma = 0.3
+    q = 0
+    SA = 15000
+    OT = '亚式/算术平均/看跌/固定'
+    V_Eu = 875.8
+    
+    result = []
+    for i in range(50):
+        Ta,Tb,Tc,sit = time_split(price_date,start_fixed_date,end_fixed_date,maturity_date)
+        
+        if Ta<=0:
+            print('输入有误！请确认到期日在报价日之后！')
+        elif Tb<0:
+            print('输入有误！请确认到期日在起均日之后！')
+        elif Tc<0:
+            print('输入有误！请确认到期日在终均日之后！')
+        elif Tb<Tc:
+            print('输入有误！请确认终均日在起均日之后！')
+        else:
+            if sit==1:
+                random = random_gen(Nsamples,Tsamples)
+                V,se = Asian_Disc_MC(random,S,K,Ta,Tb,Tc,sit,r,sigma,q,SA,
+                                     OT,Nsamples,Tsamples)
+                
+                print('计算结果：\t期权价格为: %.3f元\t期权费率为：%.2f%% '%(V,V/S*100))
+            else:
+                print('输入有误！请确认起均日在报价日之后！')
+        result.append([V_Eu,V])
+        print(i)
+        
+        
+    result = pd.DataFrame(result,columns = ['Eu','Asian'])
+    result.plot(kind = 'line',linewidth=2,color = 'br',grid=True)
+    plt.plot(result.index,result['Eu'],color='r')
+    plt.scatter(result.index,result['Asian'],marker='o',color='b')
+    

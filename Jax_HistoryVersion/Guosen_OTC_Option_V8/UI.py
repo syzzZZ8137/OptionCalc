@@ -15,10 +15,6 @@ from IPython.display import display,clear_output,display_html
 import OptionCalc.Guosen_OTC_Option.MC_Asian_Pricer as MC
 import OptionCalc.Guosen_OTC_Option.Option_Portfolio as OP
 import OptionCalc.Guosen_OTC_Option.Tprice as TP
-import OptionCalc.Guosen_OTC_Option.Tprice_RealTime as TP_RT
-import OptionCalc.Guosen_OTC_Option.GetDataMySQL as GetDataMySQL
-import OptionCalc.Guosen_OTC_Option.GetUnderling as GetUnderling
-import OptionCalc.Guosen_OTC_Option.GetContract as GetContract
 
 #%%
 #期权组合界面
@@ -205,7 +201,7 @@ def on_btnOptPort_clicked(p):
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          版本号：1.1.0</b></head></div>")
+                          版本号：1.0.1</b></head></div>")
     tips3 = widgets.Label(value=" ") #产生一个空行
     #排版
     public_info_sub1 = widgets.HBox([price_date,maturity_date,tips2])
@@ -401,7 +397,7 @@ def on_btnAsian_clicked(p):
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          版本号：1.1.0</b></head></div>")
+                          版本号：1.0.1</b></head></div>")
     date_info = widgets.HBox([price_date,maturity_date,tips3])
     date_info2 = widgets.HBox([start_fixed_date,end_fixed_date])
     info1 = widgets.HBox([S,K])
@@ -524,6 +520,15 @@ def on_btnTprice_clicked(p):
     Boxr = widgets.HBox([Labelr,r])
     
     
+    mid_K = widgets.BoundedFloatText(
+        value=15000,
+        description='行权价:',
+        disabled=False,
+        step=1,
+        min=0.01,
+        max=1000000000
+    )
+    
     sigma_buy = widgets.BoundedFloatText(
         value=20,
         disabled=False,
@@ -565,9 +570,9 @@ def on_btnTprice_clicked(p):
                               &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                               &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                               &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                              版本号：1.1.0</b></head></div>")
+                              版本号：1.0.1</b></head></div>")
     
-    info1 = widgets.HBox([S,tips3])
+    info1 = widgets.HBox([S,mid_K,tips3])
     info2 = widgets.HBox([price_date,maturity_date])
     info3 = widgets.HBox([BoxsigB,BoxsigS])
     info4 = widgets.HBox([Boxr])
@@ -586,19 +591,6 @@ def on_btnTprice_clicked(p):
         tooltip=u'单击计算已选定组合的期权价格',
         icon='check'
     )
-    def highlight(data,steps):
-        #改变T字型颜色
-        Put_OM = 'color:{}'.format('green')
-        Put_IM = 'color:{}'.format('red')
-        Call_OM = 'color:{}'.format('green')
-        Call_IM = 'color:{}'.format('red')
-        Strike = 'background-color:{}'.format('yellow')
-
-        row1 = [[Put_IM,Put_IM,Put_IM,Put_IM,Strike,Call_OM,Call_OM,Call_OM,Call_OM]]
-        row2 = [['','','','',Strike,'','','','']]
-        row3 = [[Put_OM,Put_OM,Put_OM,Put_OM,Strike,Call_IM,Call_IM,Call_IM,Call_IM]]
-        style_df = row1*steps +row2+row3*steps
-        return pd.DataFrame(style_df,index=data.index,columns=data.columns)
     
     def on_btnPreorder_clicked(p):
         
@@ -611,20 +603,14 @@ def on_btnTprice_clicked(p):
         ttmday = (maturity_date.value-price_date.value).days+1
         ttm = (ttmday)/365
         temp_input = [S.value,ttm,r.value/100,0,sigma_buy.value/100,sigma_sell.value/100] #temp_input = [S,T,r,q,buy_sigma,sell_sigma]
-        temp_output = TP.Tprice(S.value,step.value,increment.value/100,temp_input)
+        temp_output = TP.Tprice(mid_K.value,step.value,increment.value/100,temp_input)
         temp_output.index = temp_output.index-step.value
-        
         temp_output_pct = temp_output.copy()
-        temp_output_pct2 = temp_output.copy()
+        
         temp_output_pct['看跌买价'] = temp_output_pct['看跌买价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        temp_output_pct2.insert(1,'看跌买价%',temp_output_pct['看跌买价'])
         temp_output_pct['看跌卖价'] = temp_output_pct['看跌卖价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        temp_output_pct2.insert(3,'看跌卖价%',temp_output_pct['看跌卖价'])
         temp_output_pct['看涨买价'] = temp_output_pct['看涨买价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        temp_output_pct2.insert(6,'看涨买价%',temp_output_pct['看涨买价'])
         temp_output_pct['看涨卖价'] = temp_output_pct['看涨卖价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-        temp_output_pct2.insert(8,'看涨卖价%',temp_output_pct['看涨卖价'])
-
         
         
         #out = widgets.Output(layout={'border': '2px solid black'})
@@ -636,8 +622,9 @@ def on_btnTprice_clicked(p):
             
             
             display(tips)
-            temp_output_pct2 = temp_output_pct2.style.apply(highlight,steps=step.value,axis=None)
-            display(temp_output_pct2)
+            
+            display(temp_output)
+            display(temp_output_pct)
         display(out)
     
     btn_preorder.on_click(on_btnPreorder_clicked)
@@ -662,252 +649,6 @@ def on_btnTprice_clicked(p):
     select = widgets.HBox([btn_preorder,btn_init])
     display(select)
     
-#%%
-#实时波动率报价界面
-def on_btnRealTimeprice_clicked(p):
-    clear_output()
-    
-    global exchange_lst,relation_lst,EN_EX,EN_cont
-    exchange_lst,relation_lst = GetUnderling.Getunderling()
-    exchange = exchange_lst['ZHname'].tolist()
-    exchange.insert(0,'无')
-    EN_EX = '无'
-    EN_cont = '无'
-    
-    #关联3个选项框的函数
-    
-    def on_select(change):
-        global CN_cont_lst,EN_cont_lst,CN_EX,EN_EX
-        V2.options = ['无']
-        EN_EX = '无'
-        for i in range(len(exchange_lst)):
-            if change['new'] == exchange_lst.loc[i,'ZHname']:
-                CN_cont_lst = relation_lst[i]['ZHname']
-                EN_cont_lst = relation_lst[i]['contract']
-                CN_EX = exchange_lst.loc[i,'ZHname']
-                EN_EX = exchange_lst.loc[i,'exchange']
-
-                tmp = ['无']
-                tmp.extend(CN_cont_lst)
-                V2.options = tmp
-
-    def on_select2(change):
-        global EN_cont,CN_cont,cont_date_lst
-        V3.options = ['无']
-        EN_cont = '无'
-        for i in range(len(EN_cont_lst)):
-            if change['new'] == CN_cont_lst[i]:
-                cont_date_lst = GetContract.GetContract(EN_EX,EN_cont_lst[i])
-                tmp = ['无']
-                tmp.extend(cont_date_lst)
-                V3.options = tmp
-
-                EN_cont = EN_cont_lst[i]
-                CN_cont = CN_cont_lst[i]
-                #print(EN_cont_lst,CN_EX,EN_EX,CN_cont,EN_cont,cont_date_lst)
-
-    def on_select3(change):
-        global cont_date
-        cont_date = change['new']
-        #print(cont_date)
-
-    V1 = widgets.Dropdown(options=exchange,description=u'交易所:',disabled=False,continuous_update=True)
-    V2 = widgets.Dropdown(options=['无'],description=u'品种:',disabled=False,continuous_update=True)
-    V3 = widgets.Dropdown(options=['无'],description=u'合约:',disabled=False,continuous_update=True)
-
-    V1.observe(on_select,'value')
-    V2.observe(on_select2,'value')
-    V3.observe(on_select3,'value')
-    
-    now = datetime.now()
-    f = now + timedelta(days=90)  #90天后日期
-    
-    price_date = widgets.DatePicker(
-        description='期权报价日:',
-        disabled=False,
-        value=now.date(),
-        tooltip=u'计算期权价格的日期，默认今天'
-    )
-    
-    maturity_date = widgets.DatePicker(
-        description='期权到期日:',
-        disabled=False,
-        value=f.date()
-    )
-    
-    S = widgets.FloatText(
-        value=15000,
-        description='标的价格:',
-        disabled=False,
-        step=1,  #快捷变换间隔
-        tooltip=u'待选期权种类'
-    )
-    
-    r = widgets.FloatText(
-        value=1,
-        disabled=False,
-        step=0.01,
-        layout=Layout(width='207.5px')
-    )
-    Labelr = widgets.Label(value='无风险利率(%):')
-    Boxr = widgets.HBox([Labelr,r])
-    
-    step = widgets.BoundedIntText(
-        value=5,
-        description='实虚档数:',
-        disabled=False,
-        step=1,
-        min = 1,
-        tooltip=u'待选期权种类'
-    )
-    
-    increment = widgets.BoundedFloatText(
-        value=1,
-        description='每档步长(%):',
-        disabled=False,
-        step=1,
-        tooltip=u'待选期权种类',
-        min=0.01
-    )
-    
-    LabelP = widgets.Label(value='报价方式:',layout=Layout(width='120px',left='130px'))
-    is_price_percent = widgets.Checkbox(value=True,description='费率',disabled=False,layout=Layout(width='100%',align_self='center'))
-    is_vol = widgets.Checkbox(value=True,description='波动率',disabled=False,layout=Layout(width='100%',align_self='center'))
-
-    
-    
-    tips3 =  widgets.HTML(value="<head><b>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                              &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                              &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                              &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                              版本号：1.1.0</b></head></div>")
-    
-    info0 = widgets.HBox([V1,tips3])
-    info00 = widgets.HBox([V2,V3])
-    info1 = widgets.HBox([S])
-    info2 = widgets.HBox([price_date,maturity_date])
-    info3 = widgets.HBox([Boxr])
-    info4 = widgets.HBox([step,increment])
-    info5 = widgets.HBox([LabelP,is_price_percent,is_vol],layout=Layout(display='flex',flex_flow='row',width='50%'))
-    info55 = widgets.VBox([is_price_percent,is_vol],layout=Layout(align_items='stretch'))
-    info5 = widgets.HBox([LabelP,info55],layout=Layout(width='30%',align_self='stretch'))
-    
-    #info6 = widgets.HBox([info5])
-    tips1 = widgets.Label(value="【实虚档数】 为希望计算T字型报价的最高档数。 【每档步长】 为每档之间的间隔(按百分比计算)。")
-    tips2 = widgets.Label(value="选择以何种形式报价：【价格】、【费率】、【波动率】")
-    
-    global container_option_info
-    
-    container_option_info = widgets.VBox([info0,info00,info1,info2,info3,info4,tips1,info5,tips2])
-    
-    #计算按钮
-    btn_preorder = widgets.Button(
-        description=u'计算期权组合价格',
-        disabled=False,
-        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
-        tooltip=u'单击计算已选定组合的期权价格',
-        icon='check'
-    )
-    
-    def highlight(data,steps):
-        #改变T字型颜色
-        Put_OM = 'color:{}'.format('green')
-        Put_IM = 'color:{}'.format('red')
-        Call_OM = 'color:{}'.format('green')
-        Call_IM = 'color:{}'.format('red')
-        Strike = 'background-color:{}'.format('yellow')
-        
-        row1 = [[Put_IM,Put_IM,Put_IM,Put_IM,Strike,Call_OM,Call_OM,Call_OM,Call_OM]]
-        row2 = [['','','','',Strike,'','','','']]
-        row3 = [[Put_OM,Put_OM,Put_OM,Put_OM,Strike,Call_IM,Call_IM,Call_IM,Call_IM]]
-        
-        style_df = row1*steps +row2+row3*steps
-        return pd.DataFrame(style_df,index=data.index,columns=data.columns)
-    
-    def on_btnPreorder_clicked(p):
-        
-        global container_option_info
-        clear_output()
-        display(container_option_info)
-        select = widgets.HBox([btn_preorder,btn_init])
-        display(select)
-        
-        if EN_EX == '无':
-            print('请选择交易所')
-        elif EN_cont == '无':
-            print('请选择标的资产')
-        else:
-
-            myfuture = EN_EX+'-'+EN_cont
-            print(myfuture)
-            ttmday = (maturity_date.value-price_date.value).days+1
-            ttm = (ttmday)/365
-            temp_input = [S.value,ttm,r.value/100,0,myfuture] #S,T,r,q,contract
-
-            temp_output,temp_output_vol = TP_RT.Tprice_realtime(S.value,step.value,increment.value/100,temp_input)
-            temp_output.index = temp_output.index-step.value
-            temp_output_vol.index = temp_output_vol.index - step.value
-            
-            if is_price_percent.value:
-                temp_output_pct = temp_output.copy()
-                temp_output_pct2 = temp_output.copy()
-                temp_output_pct['看跌买价'] = temp_output_pct['看跌买价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-                temp_output_pct2.insert(1,'看跌买价%',temp_output_pct['看跌买价'])
-                temp_output_pct['看跌卖价'] = temp_output_pct['看跌卖价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-                temp_output_pct2.insert(3,'看跌卖价%',temp_output_pct['看跌卖价'])
-                temp_output_pct['看涨买价'] = temp_output_pct['看涨买价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-                temp_output_pct2.insert(6,'看涨买价%',temp_output_pct['看涨买价'])
-                temp_output_pct['看涨卖价'] = temp_output_pct['看涨卖价'].apply(lambda x : '%.2f%%'%(x/S.value*100))
-                temp_output_pct2.insert(8,'看涨卖价%',temp_output_pct['看涨卖价'])
-
-            if is_vol.value:
-                temp_output_vol2 = temp_output.copy()
-                temp_output_vol['看跌买方波动率'] = temp_output_vol['看跌买方波动率'].apply(lambda x : '%.2f%%'%(x*100))
-                temp_output_vol2.insert(1,'看跌买波动率',temp_output_vol['看跌买方波动率'])
-                temp_output_vol['看跌卖方波动率'] = temp_output_vol['看跌卖方波动率'].apply(lambda x : '%.2f%%'%(x*100))
-                temp_output_vol2.insert(3,'看跌卖波动率',temp_output_vol['看跌卖方波动率'])
-                temp_output_vol['看涨买方波动率'] = temp_output_vol['看涨买方波动率'].apply(lambda x : '%.2f%%'%(x*100))
-                temp_output_vol2.insert(6,'看涨买波动率',temp_output_vol['看涨买方波动率'])
-                temp_output_vol['看涨卖方波动率'] = temp_output_vol['看涨卖方波动率'].apply(lambda x : '%.2f%%'%(x*100))
-                temp_output_vol2.insert(8,'看涨卖波动率',temp_output_vol['看涨卖方波动率'])
-                
-            out = widgets.Output()
-            with out:
-                tips =  widgets.HTML(value="<head><b>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                                  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                                  距离到期日还剩：%d天</b></head></div>"%ttmday)
-
-                display(tips)
-                
-                if is_price_percent.value:
-                    temp_output_pct2 = temp_output_pct2.style.apply(highlight,steps=step.value,axis=None)
-                    display(temp_output_pct2)
-                if is_vol.value:
-                    temp_output_vol2 = temp_output_vol2.style.apply(highlight,steps=step.value,axis=None)
-                    display(temp_output_vol2)
-            display(out)
-    
-    btn_preorder.on_click(on_btnPreorder_clicked)
-            
-    
-    #重置按钮，返回上一步界面
-    btn_init = widgets.Button(
-        description=u'重置',
-        disabled=False,
-        button_style='success', # 'success', 'info', 'warning', 'danger' or ''
-        tooltip=u'单击返回上一单元',
-        icon='check'
-    )
-    
-    def init(p):
-        display_()
-    
-    btn_init.on_click(init)
-    
-    display(container_option_info)
-    
-    select = widgets.HBox([btn_preorder,btn_init])
-    display(select)
     
     
 #%%
@@ -938,32 +679,23 @@ def display_():
         icon='check'
     )
     
-    btn_RealTimeprice = widgets.Button(
-        description=u'实时波动率报价',
-        disabled=False,
-        button_style='danger', # 'success', 'info', 'warning', 'danger' or ''
-        tooltip=u'单击进入实时波动率报价页面',
-        icon='check'
-    )
-    
     btn_OptPort.on_click(on_btnOptPort_clicked)
     btn_asian.on_click(on_btnAsian_clicked)
     btn_Tprice.on_click(on_btnTprice_clicked)
-    btn_RealTimeprice.on_click(on_btnRealTimeprice_clicked)
     
     clear_output()
     tips =  widgets.HTML(value="<head><b>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
                           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp\
-                          版本号：1.1.0</b></head></div>")
-    select1 = HBox([btn_OptPort,btn_asian,btn_Tprice,tips])
-    select2 = HBox([btn_RealTimeprice])
-    select = VBox([select1,select2])
+                          版本号：1.0.1</b></head></div>")
+    select = HBox([btn_OptPort,btn_asian,btn_Tprice,tips])
     display(select)
 
     
 #%%
+
+
 
 if __name__ == '__main__':
     #执行语句
