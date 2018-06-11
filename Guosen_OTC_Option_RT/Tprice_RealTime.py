@@ -12,13 +12,12 @@ import numpy as np
 from scipy.stats import norm
 
 def BAspread(df,param_list):
-    buy = df.copy()
-    sell = df.copy()
-    for each in param_list:
-        buy[each] = df[each] - df[each+'_offset']
-        sell[each] = df[each] + df[each+'_offset']
+    para = param_list
+    buy_sell_para = df.copy()
+    for each in para:
+        buy_sell_para[each] = df[each+'_offset']
         
-    return buy,sell
+    return buy_sell_para
 
 def cal_buy_sell_vol(future,f_atm,Tdays,strike_lst):
     in_put = {'TimeToMaturity':Tdays,'strike':strike_lst}
@@ -29,25 +28,30 @@ def cal_buy_sell_vol(future,f_atm,Tdays,strike_lst):
     
     benchmark =  GetDataMySQL.get_std_paramdata(myfuture.split('-')[0],myfuture.split('-')[1],model='wing')
     benchmark['f_atm'] = f_atm
-    benchmark_buy,benchmark_sell = BAspread(benchmark,param_list)
+    benchmark_bs = BAspread(benchmark,param_list)
     
     benchmark = benchmark[['alpha','f_atm','f_ref','ssr','vol_ref','vcr',\
                              'slope_ref','scr','dn_cf','up_cf','call_curv',\
                              'dn_sm','up_sm','dn_slope','up_slope','put_curv','day']]
     
-    benchmark_buy = benchmark_buy[['alpha','f_atm','f_ref','ssr','vol_ref','vcr',\
-                             'slope_ref','scr','dn_cf','up_cf','call_curv',\
-                             'dn_sm','up_sm','dn_slope','up_slope','put_curv','day']]
-    benchmark_sell = benchmark_sell[['alpha','f_atm','f_ref','ssr','vol_ref','vcr',\
+    benchmark_bs = benchmark_bs[['alpha','f_atm','f_ref','ssr','vol_ref','vcr',\
                              'slope_ref','scr','dn_cf','up_cf','call_curv',\
                              'dn_sm','up_sm','dn_slope','up_slope','put_curv','day']]
     
     benchmark.index = [0]*len(benchmark)
-    benchmark_buy.index = [0]*len(benchmark_buy)
-    benchmark_sell.index = [0]*len(benchmark_sell)
+    benchmark_bs.index = [0]*len(benchmark_bs)
     
-    vol_buy = TimeSeriesInterpolator.time_interpolate(benchmark_buy,in_put)
-    vol_sell = TimeSeriesInterpolator.time_interpolate(benchmark_sell,in_put)
+    vol_mid = TimeSeriesInterpolator.time_interpolate(benchmark,in_put)
+    vol_bs = TimeSeriesInterpolator.time_interpolate(benchmark_bs,in_put)
+    
+    vol_mid.set_index('strike',inplace=True)
+    vol_bs.set_index('strike',inplace=True)
+    
+    vol_buy = vol_mid-vol_bs
+    vol_sell = vol_mid+vol_bs
+    
+    vol_buy.reset_index(inplace=True)
+    vol_sell.reset_index(inplace=True)
     
     return vol_buy,vol_sell
 
@@ -126,7 +130,7 @@ if __name__ == '__main__':
     strikeprice = 2800
     step = 5
     increment = 0.01
-    f_atm = 2800
+    f_atm = 2850
     Tdays = 90
     #vol_buy,vol_sell = cal_buy_sell_vol(myfuture,f_atm,Tdays,strike_lst)
     #print(vol_buy)
