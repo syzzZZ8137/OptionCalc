@@ -10,7 +10,7 @@ import pandas as pd
 
 #读出
 def dbconn(sql_query):
-    connection = pymysql.connect(host='47.100.2.112', port=33306, user='gxqh', passwd='R{Zppc7r0Lxd')
+    connection = pymysql.connect(host='localhost', port=33306, user='localuser', passwd='nodAJe3oY)GO')
     cursor=connection.cursor(pymysql.cursors.DictCursor)
     cursor.execute(sql_query)
     
