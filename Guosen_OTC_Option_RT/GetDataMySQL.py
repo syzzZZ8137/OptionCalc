@@ -4,7 +4,7 @@ Created on Fri May 25 10:54:50 2018
 
 @author: Harrison
 """
-import OptionCalc.Guosen_OTC_Option.pymysqlread as pymysqlread
+import OptionCalc.Guosen_OTC_Option_RT.pymysqlread as pymysqlread
 import pandas as pd
 
 def getparamdata(exchange,index,model='wing'):        #获取exchange-index的参数数据

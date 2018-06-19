@@ -5,8 +5,8 @@ Created on Wed Jun  6 16:35:05 2018
 @author: Harrison
 """
 
-import OptionCalc.Guosen_OTC_Option.pymysqlread as pymysqlread
-import OptionCalc.Guosen_OTC_Option.PyMySQLreadZH as PyMySQLreadZH
+import OptionCalc.Guosen_OTC_Option_RT.pymysqlread as pymysqlread
+import OptionCalc.Guosen_OTC_Option_RT.PyMySQLreadZH as PyMySQLreadZH
 import pandas as pd
 #%%
 def Getunderling():
