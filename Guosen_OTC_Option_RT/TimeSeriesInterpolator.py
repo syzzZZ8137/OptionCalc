@@ -4,10 +4,10 @@ Created on Mon May 21 10:22:27 2018
 
 @author: Jax_GuoSen
 """
-import OptionCalc.Guosen_OTC_Option_RT.Wing as Wing
+import OptionCalc.Guosen_OTC_Option.Wing as Wing
 import pandas as pd
 import matplotlib.pyplot as plt
-import OptionCalc.Guosen_OTC_Option_RT.VolatilityModelBase as VolatilityModelBase
+import OptionCalc.Guosen_OTC_Option.VolatilityModelBase as VolatilityModelBase
 
 def get_curve(X_lst,Tdays,benchmark):
     WingModel = Wing.Wing()

@@ -1,5 +1,5 @@
 import math
-import OptionCalc.Guosen_OTC_Option_RT.VolatilityModelBase as VolatilityModelBase
+import OptionCalc.Guosen_OTC_Option.VolatilityModelBase as VolatilityModelBase
 
 class Wing(VolatilityModelBase.VolatilityModelBase):
     '''

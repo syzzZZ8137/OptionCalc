@@ -195,18 +195,20 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
         if option_portfolio[i][1]['position']<0:
             in_put2.append(['期权%d'%(i+1),round(V_price[i],4),\
                             '%.2f%%'%(round(V_price[i],4)/option_portfolio[0][0]['underlying price']*100),\
+                            option_portfolio[i][1]['type'],\
                             option_portfolio[i][1]['strike'],\
                         '%.2f%%'%(option_portfolio[i][0]['volatility']*100),\
                         '卖出',abs(option_portfolio[i][1]['position'])])
         else:
             in_put2.append(['期权%d'%(i+1),round(V_price[i],4),\
                             '%.2f%%'%(round(V_price[i],4)/option_portfolio[0][0]['underlying price']*100),\
+                            option_portfolio[i][1]['type'],\
                             option_portfolio[i][1]['strike'],\
                         '%.2f%%'%(option_portfolio[i][0]['volatility']*100),\
                         '买入',abs(option_portfolio[i][1]['position'])])
     
     in_put1 = pd.DataFrame(in_put1,index=['到期天数','标的价格','无风险利率'],columns=['市场信息']).T
-    in_put2 = pd.DataFrame(in_put2,columns=['期权序号','期权价格','期权费率','行权价','波动率','方向','头寸'])
+    in_put2 = pd.DataFrame(in_put2,columns=['期权序号','期权价格','期权费率','期权类型','行权价','波动率','方向','头寸'])
     in_put2.set_index('期权序号',inplace=True)
     
     display(in_put1)
