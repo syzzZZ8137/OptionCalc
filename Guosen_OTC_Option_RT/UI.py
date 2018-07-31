@@ -101,6 +101,7 @@ def on_btnOptPort_clicked(p):
     position1 = widgets.BoundedIntText(
         value=1,
         min=0,
+        max=10000000000,
         description='头寸:',
         disabled=False,
         step=1
@@ -147,6 +148,7 @@ def on_btnOptPort_clicked(p):
     position2 = widgets.BoundedIntText(
         value=1,
         min=0,
+        max=10000000000,
         description='头寸:',
         disabled=False,
         step=1
@@ -194,6 +196,7 @@ def on_btnOptPort_clicked(p):
     position3 = widgets.BoundedIntText(
         value=1,
         min=0,
+        max=10000000000,
         description='头寸:',
         disabled=False,
         step=1
@@ -1036,6 +1039,7 @@ def on_btn_RT_OptPort_clicked(p):
     position1 = widgets.BoundedIntText(
         value=1,
         min=0,
+        max=10000000000,
         description='头寸:',
         disabled=False,
         step=1
@@ -1075,6 +1079,7 @@ def on_btn_RT_OptPort_clicked(p):
     position2 = widgets.BoundedIntText(
         value=1,
         min=0,
+        max=10000000000,
         description='头寸:',
         disabled=False,
         step=1
@@ -1115,6 +1120,7 @@ def on_btn_RT_OptPort_clicked(p):
     position3 = widgets.BoundedIntText(
         value=1,
         min=0,
+        max=10000000000,
         description='头寸:',
         disabled=False,
         step=1
