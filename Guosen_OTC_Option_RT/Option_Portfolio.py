@@ -193,15 +193,15 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
     for i in range(len(option_portfolio)):
         
         if option_portfolio[i][1]['position']<0:
-            in_put2.append(['期权%d'%(i+1),round(V_price[i],4),\
-                            '%.2f%%'%(round(V_price[i],4)/option_portfolio[0][0]['underlying price']*100),\
+            in_put2.append(['期权%d'%(i+1),-round(V_price[i],4),\
+                            '%.2f%%'%(-round(V_price[i],4)/abs(option_portfolio[i][1]['position'])/option_portfolio[0][0]['underlying price']*100),\
                             option_portfolio[i][1]['type'],\
                             option_portfolio[i][1]['strike'],\
                         '%.2f%%'%(option_portfolio[i][0]['volatility']*100),\
                         '卖出',abs(option_portfolio[i][1]['position'])])
         else:
             in_put2.append(['期权%d'%(i+1),round(V_price[i],4),\
-                            '%.2f%%'%(round(V_price[i],4)/option_portfolio[0][0]['underlying price']*100),\
+                            '%.2f%%'%(round(V_price[i],4)/abs(option_portfolio[i][1]['position'])/option_portfolio[0][0]['underlying price']*100),\
                             option_portfolio[i][1]['type'],\
                             option_portfolio[i][1]['strike'],\
                         '%.2f%%'%(option_portfolio[i][0]['volatility']*100),\
@@ -221,7 +221,7 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
 if __name__ == '__main__':
     market_property = {'underlying price':10000,'interest':0.05,\
                    'volatility':0.1,'dividend':0}
-    option_property1 = {'type':'欧式/看涨','position':1,\
+    option_property1 = {'type':'欧式/看涨','position':2,\
                        'strike':10000,'maturity':1}
     option_property2 = {'type':'欧式/看跌','position':-1,\
                        'strike':10000,'maturity':1}
