@@ -35,11 +35,6 @@ def on_btnOptPort_clicked(p):
         tooltip=u'计算期权价格的日期，默认今天'
     )
 
-    maturity_date = widgets.DatePicker(
-        description='期权到期日:',
-        disabled=False,
-        value=f.date()
-    )
 
     S = widgets.FloatText(
         value=15000,
@@ -71,6 +66,12 @@ def on_btnOptPort_clicked(p):
         description=u'期权1:',
         disabled=False,
         continuous_update=True,
+    )
+    
+    maturity_date1 = widgets.DatePicker(
+        description='期权到期日:',
+        disabled=False,
+        value=f.date()
     )
 
     K1 = widgets.BoundedFloatText(
@@ -120,6 +121,12 @@ def on_btnOptPort_clicked(p):
         continuous_update=True,
     )
 
+    maturity_date2 = widgets.DatePicker(
+        description='期权到期日:',
+        disabled=False,
+        value=f.date()
+    )
+    
     K2 = widgets.BoundedFloatText(
         value=15000,
         description='行权价:',
@@ -167,7 +174,13 @@ def on_btnOptPort_clicked(p):
         disabled=False,
         continuous_update=True,
     )
-
+    
+    maturity_date3 = widgets.DatePicker(
+        description='期权到期日:',
+        disabled=False,
+        value=f.date()
+    )
+    
     K3 = widgets.BoundedFloatText(
         value=15000,
         description='行权价:',
@@ -211,13 +224,13 @@ def on_btnOptPort_clicked(p):
                           版本号：1.1.0</b></head></div>")
     tips3 = widgets.Label(value=" ") #产生一个空行
     #排版
-    public_info_sub1 = widgets.HBox([price_date,maturity_date,tips2])
+    public_info_sub1 = widgets.HBox([price_date,tips2])
     public_info_sub2 = widgets.HBox([S,Boxr,tips3])
     public_info = widgets.VBox([public_info_sub1,public_info_sub2,tips1])
     
-    private_info1 = widgets.VBox([option_type1,K1,sigma1,direction1,position1])
-    private_info2 = widgets.VBox([option_type2,K2,sigma2,direction2,position2])
-    private_info3 = widgets.VBox([option_type3,K3,sigma3,direction3,position3])
+    private_info1 = widgets.VBox([option_type1,K1,maturity_date1,sigma1,direction1,position1])
+    private_info2 = widgets.VBox([option_type2,K2,maturity_date2,sigma2,direction2,position2])
+    private_info3 = widgets.VBox([option_type3,K3,maturity_date3,sigma3,direction3,position3])
     
     private_info = widgets.HBox([private_info1,private_info2,private_info3])
     global option_portfolio,container_option_info
@@ -232,15 +245,15 @@ def on_btnOptPort_clicked(p):
         if private_info.children[0].value=='无':
             pass
         else:
-            if private_info.children[3].value == '卖出':
-                pos = -private_info.children[4].value
+            if private_info.children[4].value == '卖出':
+                pos = -private_info.children[5].value
             else:
-                pos = private_info.children[4].value
+                pos = private_info.children[5].value
             #加入组合库
             market_property = {'underlying price':S.value,'interest':r.value/100,\
-                               'volatility':private_info.children[2].value/100,'dividend':0}
+                               'volatility':private_info.children[3].value/100,'dividend':0}
             option_property = {'type':private_info.children[0].value,'position':pos,\
-                               'strike':private_info.children[1].value,'maturity':((maturity_date.value - price_date.value).days+1)/365}
+                               'strike':private_info.children[1].value,'maturity':((private_info.children[2].value - price_date.value).days+1)/365}
             option_portfolio.append([market_property,option_property])
     
     
@@ -980,11 +993,6 @@ def on_btn_RT_OptPort_clicked(p):
         tooltip=u'计算期权价格的日期，默认今天'
     )
 
-    maturity_date = widgets.DatePicker(
-        description='期权到期日:',
-        disabled=False,
-        value=f.date()
-    )
 
     S = widgets.FloatText(
         value=15000,
@@ -1027,6 +1035,11 @@ def on_btn_RT_OptPort_clicked(p):
         max=1000000000
     )
     
+    maturity_date1 = widgets.DatePicker(
+        description='期权到期日:',
+        disabled=False,
+        value=f.date()
+    )
     
     direction1 = widgets.Dropdown(
         options=['买入', '卖出'],
@@ -1067,6 +1080,11 @@ def on_btn_RT_OptPort_clicked(p):
         max=1000000000
     )
     
+    maturity_date2 = widgets.DatePicker(
+        description='期权到期日:',
+        disabled=False,
+        value=f.date()
+    )
     
     direction2 = widgets.Dropdown(
         options=['买入', '卖出'],
@@ -1108,6 +1126,11 @@ def on_btn_RT_OptPort_clicked(p):
         max=1000000000
     )
     
+    maturity_date3 = widgets.DatePicker(
+        description='期权到期日:',
+        disabled=False,
+        value=f.date()
+    )
     
     direction3 = widgets.Dropdown(
         options=['买入', '卖出'],
@@ -1139,13 +1162,13 @@ def on_btn_RT_OptPort_clicked(p):
     #排版
     V = widgets.HBox([V1,tips2])
     VV = widgets.HBox([V2,V3])
-    public_info_sub1 = widgets.HBox([price_date,maturity_date])
+    public_info_sub1 = widgets.HBox([price_date])
     public_info_sub2 = widgets.HBox([S,Boxr,tips3])
     public_info = widgets.VBox([public_info_sub1,public_info_sub2,tips1])
     
-    private_info1 = widgets.VBox([option_type1,K1,direction1,position1])
-    private_info2 = widgets.VBox([option_type2,K2,direction2,position2])
-    private_info3 = widgets.VBox([option_type3,K3,direction3,position3])
+    private_info1 = widgets.VBox([option_type1,K1,maturity_date1,direction1,position1])
+    private_info2 = widgets.VBox([option_type2,K2,maturity_date2,direction2,position2])
+    private_info3 = widgets.VBox([option_type3,K3,maturity_date3,direction3,position3])
     
     private_info = widgets.HBox([private_info1,private_info2,private_info3])
     global option_portfolio,container_option_info
@@ -1161,13 +1184,13 @@ def on_btn_RT_OptPort_clicked(p):
             pass
         else:
             myfuture = EN_EX+'-'+EN_cont
-            volbuy,volsell = TP_RT.cal_buy_sell_vol(myfuture,S.value,(maturity_date.value - price_date.value).days+1,[private_info.children[1].value])
+            volbuy,volsell = TP_RT.cal_buy_sell_vol(myfuture,S.value,(private_info.children[2].value - price_date.value).days+1,[private_info.children[1].value])
             
-            if private_info.children[2].value == '卖出':
-                pos = -private_info.children[3].value
+            if private_info.children[3].value == '卖出':
+                pos = -private_info.children[4].value
                 vol = volbuy['vol'].values[0]
             else:
-                pos = private_info.children[3].value
+                pos = private_info.children[4].value
                 vol = volsell['vol'].values[0]
                 
             #加入组合库
@@ -1175,7 +1198,7 @@ def on_btn_RT_OptPort_clicked(p):
             market_property = {'underlying price':S.value,'interest':r.value/100,\
                                'volatility':vol,'dividend':0}
             option_property = {'type':private_info.children[0].value,'position':pos,\
-                               'strike':private_info.children[1].value,'maturity':((maturity_date.value - price_date.value).days+1)/365}
+                               'strike':private_info.children[1].value,'maturity':((private_info.children[2].value - price_date.value).days+1)/365}
             option_portfolio.append([market_property,option_property])
     
     
