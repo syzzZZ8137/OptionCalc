@@ -136,7 +136,7 @@ def payoff_search(market_property,option_property,K_limit,T_limit):
     
     else:
         T = T - T_limit
-        print(T_limit)
+        #print(T_limit)
         sigma = market_property['volatility']
         r = market_property['interest']
         q = market_property['dividend']
