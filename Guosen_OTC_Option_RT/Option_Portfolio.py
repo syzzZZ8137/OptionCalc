@@ -190,13 +190,13 @@ def cal_opt_port(option_portfolio):
         port_sum['sum'] = np.sum(port_sum,axis=1)
         port_sum = port_sum['sum'].reset_index()
 
-    return portfolio_payoff,port_sum,V_price
+    return portfolio_payoff,port_sum,V_price,T_limit
 
 def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益结构'):
     fig = plt.figure(figsize=(8,5))
     ax=fig.gca()
 
-    portfolio_payoff,port_sum,V_price = cal_opt_port(option_portfolio)
+    portfolio_payoff,port_sum,V_price,T_limit = cal_opt_port(option_portfolio)
     legend=[]
     i = 0
     for each in portfolio_payoff:
@@ -213,7 +213,7 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
     ax.set_title(strategy_name+'\n',fontsize=14)
     ax.legend(legend)
     
-    in_put1 = [int(round(option_portfolio[0][1]['maturity']*365)),\
+    in_put1 = [int(round(T_limit*365)),\
                option_portfolio[0][0]['underlying price'],\
                '%.2f%%'%(option_portfolio[0][0]['interest']*100)]
     in_put2 = []
@@ -249,9 +249,9 @@ if __name__ == '__main__':
     market_property = {'underlying price':10000,'interest':0.05,\
                    'volatility':0.1,'dividend':0}
     option_property1 = {'type':'欧式/看涨','position':-1,\
-                       'strike':10000,'maturity':0.25}
+                       'strike':10000,'maturity':0.75}
     option_property2 = {'type':'欧式/看涨','position':1,\
-                       'strike':10000,'maturity':0.5}
+                       'strike':10000,'maturity':0.25}
     option_portfolio = [[market_property,option_property1],[market_property,option_property2]]
     
     port_sum = option_portfolio_main(option_portfolio,'Bull Strategy')
