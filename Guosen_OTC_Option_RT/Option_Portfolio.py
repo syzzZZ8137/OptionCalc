@@ -140,7 +140,7 @@ def payoff_search(market_property,option_property,K_limit,T_limit):
         sigma = market_property['volatility']
         r = market_property['interest']
         q = market_property['dividend']
-        
+        #S_T['priceT1'] = S_T['priceT'].apply(lambda x : x*np.exp(r*T_limit))
         if OT == '欧式/看涨':
             S_T['payoff'] = S_T['priceT'].apply(lambda x:European_Call(x,K,T,sigma,r,q))
         elif OT == '欧式/看跌':
@@ -246,11 +246,11 @@ def option_portfolio_main(option_portfolio,strategy_name = '期权组合收益�
     return port_sum
 
 if __name__ == '__main__':
-    market_property = {'underlying price':10000,'interest':0.05,\
+    market_property = {'underlying price':10000,'interest':0.02,\
                    'volatility':0.1,'dividend':0}
-    option_property1 = {'type':'欧式/看涨','position':-1,\
+    option_property1 = {'type':'欧式/看涨','position':1,\
                        'strike':10000,'maturity':0.75}
-    option_property2 = {'type':'欧式/看涨','position':1,\
+    option_property2 = {'type':'欧式/看涨','position':-1,\
                        'strike':10000,'maturity':0.25}
     option_portfolio = [[market_property,option_property1],[market_property,option_property2]]
     
