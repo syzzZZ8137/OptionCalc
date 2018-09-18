@@ -232,7 +232,12 @@ def on_btnOptPort_clicked(p):
             else:
                 pass
             res1,res2,res3,res11,res22,res33,mid = GK.scenario_analysis2(option_portfolio,gapS.value,rangeS.value,\
-                                                                         gapvol.value,rangevol.value,gapT.value,rangeT.value)
+                                                                        gapvol.value,rangevol.value,gapT.value,rangeT.value)
+            
+            res2.columns = res2.columns*365            
+            res3.columns = res3.columns*365
+            res22.columns = res22.columns*365            
+            res33.columns = res33.columns*365
             
             res1 = res1.style.applymap(highlight,mid=mid)
             res2 = res2.style.applymap(highlight,mid=mid)
@@ -242,17 +247,17 @@ def on_btnOptPort_clicked(p):
             res33 = res33.style.applymap(highlight,mid=0)
             print('标的价格V.S.波动率 （组合价值）')
             display(res1)
-            print('标的价格V.S.到期时间（年）（组合价值）')
+            print('标的价格V.S.到期时间（天）（组合价值）')
             display(res2)
-            print('波动率.S.到期时间（年）（组合价值）')
+            print('波动率.S.到期时间（天）（组合价值）')
             display(res3)
 
 
             print('标的价格V.S.波动率 （组合价值变动）')
             display(res11)
-            print('标的价格V.S.到期时间（年）（组合价值变动）')
+            print('标的价格V.S.到期时间（天）（组合价值变动）')
             display(res22)
-            print('波动率.S.到期时间（年）（组合价值变动）')
+            print('波动率.S.到期时间（天）（组合价值变动）')
             display(res33)
                 
             
