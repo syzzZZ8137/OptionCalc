@@ -239,6 +239,12 @@ def on_btnOptPort_clicked(p):
             res22.columns = res22.columns*365            
             res33.columns = res33.columns*365
             
+            res2.columns = [round(x) for x in res2.columns.tolist()]            
+            res3.columns = [round(x) for x in res3.columns.tolist()]
+            res22.columns = [round(x) for x in res22.columns.tolist()]            
+            res33.columns = [round(x) for x in res33.columns.tolist()]
+            
+            
             res1 = res1.style.applymap(highlight,mid=mid)
             res2 = res2.style.applymap(highlight,mid=mid)
             res3 = res3.style.applymap(highlight,mid=mid)
